@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Não Encontrada | Sistema de Usuários</title>
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --darker-bg: #1e1e1e;
+            --primary: #bb86fc;
+            --primary-dark: #3700b3;
+            --text: #e1e1e6;
+            --text-secondary: #a1a1a1;
+            --border: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .error-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 3rem 2rem;
+            background-color: var(--darker-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem 2rem;
+            background-color: var(--primary);
+            color: #121212;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .home-btn:hover {
+            background-color: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(187, 134, 252, 0.2);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .error-container {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1>404</h1>
+        <h2>Página Não Encontrada</h2>
+        <p>O conteúdo que você está procurando não existe ou foi movido para outro endereço.</p>
+        <a href="/" class="home-btn">
+            <span>Voltar para a Página Inicial</span>
+            &rarr;
+        </a>
+    </div>
+
+    <script>
+        // Adiciona um efeito de digitação ao texto
+        document.addEventListener('DOMContentLoaded', () => {
+            const phrases = [
+                "Talvez o endereço tenha mudado...",
+                "Você pode ter digitado algo errado...",
+                "Ou a página foi removida..."
+            ];
+            const subtitle = document.querySelector('p');
+            let currentPhrase = 0;
+            let currentChar = 0;
+            let isDeleting = false;
+            let typingSpeed = 100;
+
+            function typeWriter() {
+                const fullTxt = phrases[currentPhrase];
+
+                if (isDeleting) {
+                    subtitle.textContent = fullTxt.substring(0, currentChar - 1);
+                    currentChar--;
+                    typingSpeed = 50;
+                } else {
+                    subtitle.textContent = fullTxt.substring(0, currentChar + 1);
+                    currentChar++;
+                    typingSpeed = 100;
+                }
+
+                if (!isDeleting && currentChar === fullTxt.length) {
+                    isDeleting = true;
+                    typingSpeed = 1500; // Pausa no final
+                } else if (isDeleting && currentChar === 0) {
+                    isDeleting = false;
+                    currentPhrase = (currentPhrase + 1) % phrases.length;
+                    typingSpeed = 500; // Pausa no início
+                }
+
+                setTimeout(typeWriter, typingSpeed);
+            }
+
+            // Inicia o efeito após 1 segundo
+            setTimeout(typeWriter, 1000);
+        });
+    </script>
+</body>
+</html>

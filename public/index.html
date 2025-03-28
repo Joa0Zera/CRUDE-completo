@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários | Sistema de Gestão</title>
+    <link rel="stylesheet" href="stylesheets/header.css">
+    <link rel="stylesheet" href="stylesheets/pessoas.css">
+    <style>
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(187, 134, 252, 0.2);
+            border-top-color: #bb86fc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #a0a0a0;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #bb86fc;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="nav-container">
+            <a href="index.html" class="header-brand">
+                <span class="brand-icon">👤</span>
+                <span>UserSystem</span>
+            </a>
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link active">
+                            <span class="nav-icon">📋</span>
+                            <span>Usuários</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="cadastro.html" class="nav-link">
+                            <span class="nav-icon">➕</span>
+                            <span>Cadastrar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="atualizar.html" class="nav-link">
+                            <span class="nav-icon">🔄</span>
+                            <span>Atualizar</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="excluir.html" class="nav-link">
+                            <span class="nav-icon">❌</span>
+                            <span>Excluir</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="data-container">
+        <div class="data-header">
+            <h1 class="data-title">Lista de Usuários</h1>
+            <div class="data-actions">
+                <span id="userCount" class="user-count">0 usuários</span>
+            </div>
+        </div>
+        
+        <div id="loadingIndicator" class="loading-container">
+            <div class="loading-spinner"></div>
+        </div>
+        
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <h3>Nenhum usuário cadastrado</h3>
+            <p>Comece cadastrando seu primeiro usuário</p>
+        </div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="col-id">ID</th>
+                    <th class="col-name">Nome</th>
+                    <th class="col-age">Idade</th>
+                    <th class="col-cpf">CPF</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaPessoas">
+                <!-- Dados serão preenchidos via JavaScript -->
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabela = document.getElementById('tabelaPessoas');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const emptyState = document.getElementById('emptyState');
+            const userCount = document.getElementById('userCount');
+            
+            function formatCPF(cpf) {
+                if (!cpf) return '';
+                const cleaned = cpf.replace(/\D/g, '');
+                return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            }
+            
+            function getAgeClass(age) {
+                age = parseInt(age);
+                if (age < 18) return 'age-warning';
+                if (age > 60) return 'age-warning';
+                return 'age-normal';
+            }
+            
+            async function loadData() {
+                try {
+                    loadingIndicator.style.display = 'flex';
+                    emptyState.style.display = 'none';
+                    tabela.innerHTML = '';
+                    
+                    const response = await fetch('/api/pessoas');
+                    const data = await response.json();
+                    
+                    userCount.textContent = `${data.length} ${data.length === 1 ? 'usuário' : 'usuários'}`;
+                    
+                    if (data.length === 0) {
+                        emptyState.style.display = 'block';
+                        return;
+                    }
+                    
+                    data.forEach(pessoa => {
+                        const row = tabela.insertRow();
+                        
+                        const cellId = row.insertCell();
+                        cellId.className = 'col-id';
+                        cellId.textContent = pessoa.id;
+                        
+                        const cellName = row.insertCell();
+                        cellName.className = 'col-name';
+                        cellName.textContent = pessoa.nome;
+                        
+                        const cellAge = row.insertCell();
+                        cellAge.className = 'col-age';
+                        cellAge.innerHTML = `
+                            <span class="age-badge ${getAgeClass(pessoa.idade)}">
+                                ${pessoa.idade} anos
+                            </span>
+                        `;
+                        
+                        const cellCPF = row.insertCell();
+                        cellCPF.className = 'col-cpf';
+                        cellCPF.textContent = formatCPF(pessoa.cpf);
+                    });
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar dados:', error);
+                    // Não mostra mais mensagem de erro para o usuário
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+            
+            loadData();
+            setInterval(loadData, 30000);
+        });
+    </script>
+</body>
+</html>

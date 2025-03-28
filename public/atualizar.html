@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Dados</title>
+    <link rel="stylesheet" href="stylesheets/atualizar.css">
+    <link rel="stylesheet" href="stylesheets/header.css">
+
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="nav-container">
+          <a href="index.html" class="header-brand">
+            <span class="brand-icon">👤</span>
+            <span>UserSystem</span>
+          </a>
+          <nav>
+            <ul class="nav-list">
+              <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                  <span class="nav-icon">📋</span>
+                  <span>Usuários</span>
+                </a>
+              </li>
+              <!-- Outros itens de menu -->
+            </ul>
+          </nav>
+        </div>
+      </header>
+    <div class="container">
+        <h1>Atualizar Dados</h1>
+
+        <!-- Buscar por CPF -->
+        <div class="buscar-cpf">
+            <label for="cpfBuscar">Buscar por CPF:</label>
+            <input type="text" id="cpfBuscar" placeholder="Digite o CPF">
+            <button type="button" onclick="buscarDados()">Buscar</button>
+        </div>
+
+        <!-- Formulário de Atualização -->
+        <form id="formAtualizar" style="display: none;">
+            <input type="hidden" id="id">
+
+            <label for="nomeAtualizar">Nome:</label>
+            <input type="text" id="nomeAtualizar" placeholder="Nome">
+
+            <label for="idadeAtualizar">Idade:</label>
+            <input type="number" id="idadeAtualizar" placeholder="Idade">
+
+            <label for="cpfAtualizar">CPF:</label>
+            <input type="text" id="cpfAtualizar" placeholder="CPF">
+
+            <button type="button" onclick="atualizarDados()">Atualizar</button>
+        </form>
+    </div>
+
+    <script>
+        function buscarDados() {
+            const cpf = document.getElementById('cpfBuscar').value;
+
+            fetch('/api/pessoas')
+                .then(response => response.json())
+                .then(data => {
+                    const pessoaEncontrada = data.find(pessoa => pessoa.cpf === cpf);
+
+                    if (pessoaEncontrada) {
+                        // Preenche os campos do formulário
+                        document.getElementById('id').value = pessoaEncontrada.id;
+                        document.getElementById('nomeAtualizar').value = pessoaEncontrada.nome;
+                        document.getElementById('idadeAtualizar').value = pessoaEncontrada.idade;
+                        document.getElementById('cpfAtualizar').value = pessoaEncontrada.cpf;
+
+                        // Exibe o formulário de atualização
+                        document.getElementById('formAtualizar').style.display = 'block';
+                    } else {
+                        alert('Pessoa não encontrada!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar dados:', error);
+                    alert('Erro ao buscar dados. Tente novamente.');
+                });
+        }
+
+        function atualizarDados() {
+            const id = document.getElementById('id').value;
+            const nome = document.getElementById('nomeAtualizar').value;
+            const idade = document.getElementById('idadeAtualizar').value;
+            const cpf = document.getElementById('cpfAtualizar').value;
+
+            fetch(`/api/pessoas/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome: nome, idade: idade, cpf: cpf })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Dados atualizados com sucesso!');
+                    // Limpa os campos e oculta o formulário
+                    document.getElementById('cpfBuscar').value = '';
+                    document.getElementById('formAtualizar').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Erro ao atualizar dados:', error);
+                    alert('Erro ao atualizar dados. Tente novamente.');
+                });
+        }
+    </script>
+</body>
+
+</html>
